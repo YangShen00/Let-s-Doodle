@@ -1,5 +1,3 @@
-import logo from './logo.svg';
-import Canvas from './components/canvas'
 import { useRef, useState, useEffect } from 'react';
 import './App.css';
 
