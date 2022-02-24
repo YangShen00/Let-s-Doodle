@@ -46,6 +46,14 @@ function App() {
     contextRef.current.stroke()
 
   }
+
+  function clearCanvas() {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d')
+    context.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+
   return (
     <div>
 
@@ -54,9 +62,11 @@ function App() {
           <p>
             Lets Doodle
           </p>
+
         </header>
       </div>
-      <canvas
+      <button className="button" onClick={clearCanvas}>Clear</button>
+      <canvas id="canvas"
         onMouseDown={startDrawing}
         onMouseUp={finishDrawing}
         onMouseMove={draw}

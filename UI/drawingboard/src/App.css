@@ -25,9 +25,31 @@
   border: 1px solid #179e2d
 }
 
-.test {
-  background-color: grey;
-  
-}
 
+.button{
+  display:inline-block;
+  padding:1em 10em;
+  border:0.1em solid #beebba;
+  margin:0em 30em 0.3em 0;
+  border-radius:0em;
+  box-sizing: border-box;
+  text-decoration:none;
+  font-family:'Roboto',sans-serif;
+  font-size: 20px;
+  color:rgb(10, 10, 10);
+  text-align:center;
+  transition: all 0.2s;
+  }
+
+  button:hover{
+  color:rgb(10, 10, 10);
+  background-color:#d3fab3;
+  }
+
+  @media all and (max-width:30em){
+  button{
+  display:block;
+  margin:0.4em auto;
+  }
+  }
 
