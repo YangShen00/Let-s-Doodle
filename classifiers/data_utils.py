@@ -1,5 +1,8 @@
 import os
 import gdown
+from torch.utils.data import Dataset, DataLoader
+import numpy as np
+import torch
 
 DATASET_DRIVE_URL = "https://drive.google.com/drive/folders/1RJ59uDHVOlruHypJMRLoZvUQE6yD6HOM?usp=sharing"
 
@@ -15,7 +18,7 @@ def download_data():
 class QuickDrawDataset(Dataset):
     """QuickDraw Dataset, data sourced from Google."""
     
-    def __init__(self, npy_directory, transform=None, prop=0.10):
+    def __init__(self, npy_directory="./npy", transform=None, prop=0.10):
         """
         Args:
             npy_directory (string): Path to the npy directory with sketch information.
@@ -56,7 +59,7 @@ class QuickDrawDataset(Dataset):
             idx = idx.tolist()
             
         img = torch.from_numpy(self.sketches[idx])
-        label = self.label.[idx]
+        label = self.labels[idx]
 
         if self.transform:
             img = self.transform(img)
