@@ -1,7 +1,11 @@
 import { useRef, useState, useEffect } from 'react';
 import './App.css';
+import Timer from './components/timer'
 
 function App() {
+
+  const minSecs = { minutes: 1, seconds: 40 }
+  console.log("minSecs")
 
   const canvasRef = useRef(null)
   const contextRef = useRef(null)
@@ -66,6 +70,7 @@ function App() {
         </header>
       </div>
       <button className="button" onClick={clearCanvas}>Clear</button>
+      <Timer MinSecs={minSecs} />
       <canvas id="canvas"
         onMouseDown={startDrawing}
         onMouseUp={finishDrawing}
