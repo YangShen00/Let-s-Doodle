@@ -69,8 +69,12 @@ function App() {
 
         </header>
       </div>
-      <button className="button" onClick={clearCanvas}>Clear</button>
-      <Timer MinSecs={minSecs} />
+
+      <div className="info">
+        <button className="button" onClick={clearCanvas}>Clear</button>
+        <Timer MinSecs={minSecs} />
+      </div>
+
       <canvas id="canvas"
         onMouseDown={startDrawing}
         onMouseUp={finishDrawing}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
 const Timer = ({ MinSecs }) => {
-  console.log(MinSecs)
+
   const { minutes = 0, seconds = 60 } = MinSecs;
   const [[mins, secs], setTime] = React.useState([minutes, seconds]);
 
