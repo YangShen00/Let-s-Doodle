@@ -41,11 +41,13 @@ def unpack_drawing(file_handle):
     }
 
 
-def unpack_drawings(filename):
+def unpack_drawings(filename, prop=0.1):
     with open(filename, 'rb') as f:
         while True:
             try:
-                yield unpack_drawing(f)
+                unpacked = unpack_drawing(f)
+                if unpacked['recognized']: yield unpacked['image']
+                continue
             except struct.error:
                 break
                 
