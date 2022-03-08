@@ -26,7 +26,7 @@ def open_ndjson(path: str) -> pd.DataFrame:
         
 def rand_train_test_idx(n, train_prop=.5, valid_prop=.25, seed=42):
     """ randomly splits label into train/valid/test splits """
-    np.random.seed(42)
+    np.random.seed(seed)
 
     train_num = int(n * train_prop)
     valid_num = int(n * valid_prop)
