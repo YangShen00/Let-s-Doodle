@@ -1,13 +1,36 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, createRef, createFileName } from 'react';
+import { useScreenshot } from 'use-react-screenshot'
+
 import './App.css';
 import Timer from './components/timer'
 import Prompt from './components/prompt'
 
 function App() {
 
-  const minSecs = { minutes: 1, seconds: 40 }
-  console.log("minSecs")
+  // screenshot
+  const [image, takeScreenShot] = useScreenshot({
+    type: "image/jpeg",
+    quality: 1.0
+  });
 
+  const download = (image, { name = "img", extension = "jpg" } = {}) => {
+    const a = document.createElement("a");
+    console.log(image)
+    a.href = image;
+    a.download = "output.png";
+    a.click();
+  };
+
+  const downloadScreenshot = () => takeScreenShot(canvasRef.current).then(download);
+
+
+
+  // timer
+
+  const minSecs = { minutes: 0, seconds: 40 }
+
+
+  // canvas
   const canvasRef = useRef(null)
   const contextRef = useRef(null)
 
@@ -75,6 +98,7 @@ function App() {
         <button className="button" onClick={clearCanvas}>Clear</button>
         <Timer MinSecs={minSecs} />
         <Prompt />
+        <button onClick={downloadScreenshot}>Evaluate drawing</button>
       </div>
 
       <canvas id="canvas"
