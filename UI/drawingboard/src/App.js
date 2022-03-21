@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, createRef, createFileName } from 'react';
+import React, { useRef, useState, useEffect, createRef, createFileName } from 'react';
 import { useScreenshot } from 'use-react-screenshot'
 
 import './App.css';
@@ -27,7 +27,40 @@ function App() {
 
   // timer
 
-  const minSecs = { minutes: 0, seconds: 10 }
+  const minutes = 0
+  const seconds = 5
+
+  const [[mins, secs], setTime] = React.useState([minutes, seconds]);
+  const [prompt, setPrompt] = React.useState("start")
+
+  const library = ['book', 'car', 'bird', 'dog', 'flower', 'bottle']
+
+  const tick = () => {
+    if (mins === 0 && secs === 0) {
+      var result = evaluate();
+
+      if (result === true) {
+        reset()
+        setPrompt(library[Math.floor(Math.random() * library.length)])
+        clearCanvas()
+      }
+    } else if (secs === 0) {
+      setTime([mins - 1, 59]);
+    } else {
+      setTime([mins, secs - 1]);
+    }
+  };
+
+  // here is the function to evaluate the result
+  const evaluate = () => true;
+
+  const reset = () => setTime([parseInt(minutes), parseInt(seconds)]);
+
+
+  React.useEffect(() => {
+    const timerId = setInterval(() => tick(), 1000);
+    return () => clearInterval(timerId);
+  });
 
 
   // canvas
@@ -95,9 +128,17 @@ function App() {
       </div>
 
       <div className="info">
-        <button className="button" onClick={clearCanvas}>Clear</button>
-        <Timer MinSecs={minSecs} />
+
+        {/* <Timer MinSecs={minSecs} /> */}
         {/* <Prompt /> */}
+        <div className="border">
+          <p className='timer'>{`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`}</p>
+          <a className='prompt'>{prompt}</a>
+          <button className="button" onClick={clearCanvas}>Clear</button>
+
+
+
+        </div>
         <button onClick={downloadScreenshot}>Evaluate drawing</button>
       </div>
 
