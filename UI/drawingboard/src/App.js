@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import './App.css';
 import Timer from './components/timer'
+import Prompt from './components/prompt'
 
 function App() {
 
@@ -73,6 +74,7 @@ function App() {
       <div className="info">
         <button className="button" onClick={clearCanvas}>Clear</button>
         <Timer MinSecs={minSecs} />
+        <Prompt />
       </div>
 
       <canvas id="canvas"
