@@ -27,7 +27,7 @@ function App() {
 
   // timer
 
-  const minSecs = { minutes: 0, seconds: 40 }
+  const minSecs = { minutes: 0, seconds: 10 }
 
 
   // canvas
@@ -97,7 +97,7 @@ function App() {
       <div className="info">
         <button className="button" onClick={clearCanvas}>Clear</button>
         <Timer MinSecs={minSecs} />
-        <Prompt />
+        {/* <Prompt /> */}
         <button onClick={downloadScreenshot}>Evaluate drawing</button>
       </div>
 
