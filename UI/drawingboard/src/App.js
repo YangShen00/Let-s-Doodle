@@ -27,6 +27,7 @@ function App() {
 
   // timer
 
+  // TODO: decrease time in each round
   const minutes = 0
   const seconds = 5
 
@@ -49,7 +50,7 @@ function App() {
     }
 
     if (mins === 0 && secs === 0) {
-      // game should end here
+      // TODO: game should end here
     } else if (secs === 0) {
       setTime([mins - 1, 59]);
     } else {
@@ -57,7 +58,7 @@ function App() {
     }
   };
 
-  // here is the function to evaluate the result
+  // TODO: the function to evaluate the result
   const evaluate = () => true;
 
   const reset = () => setTime([parseInt(minutes), parseInt(seconds)]);
