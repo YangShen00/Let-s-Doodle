@@ -32,18 +32,24 @@ function App() {
 
   const [[mins, secs], setTime] = React.useState([minutes, seconds]);
   const [prompt, setPrompt] = React.useState("start")
+  const [score, setScore] = React.useState(0)
 
   const library = ['book', 'car', 'bird', 'dog', 'flower', 'bottle']
 
   const tick = () => {
-    if (mins === 0 && secs === 0) {
+    if (secs % 10 == 0) {
       var result = evaluate();
-
       if (result === true) {
         reset()
         setPrompt(library[Math.floor(Math.random() * library.length)])
+        setScore(score + 1)
         clearCanvas()
       }
+
+    }
+
+    if (mins === 0 && secs === 0) {
+      // game should end here
     } else if (secs === 0) {
       setTime([mins - 1, 59]);
     } else {
@@ -135,10 +141,8 @@ function App() {
           <p className='timer'>{`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`}</p>
           <a className='prompt'>{prompt}</a>
           <button className="button" onClick={clearCanvas}>Clear</button>
-
-
-
         </div>
+        <p>Current Score: {score}</p>
         <button onClick={downloadScreenshot}>Evaluate drawing</button>
       </div>
 
