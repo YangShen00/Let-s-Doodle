@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import os
 import numpy as np
 import cairocffi as cairo
 import struct
@@ -52,12 +52,16 @@ def unpack_drawings(filename, prop=0.1):
                 break
                 
 
-def vector_to_raster(vector_images, side=28, line_diameter=16, padding=16, bg_color=(0,0,0), fg_color=(1,1,1)):
+def vector_to_raster(vector_images, label, side=28, line_diameter=16, padding=16, bg_color=(0,0,0), fg_color=(1,1,1)):
     """
     padding and line_diameter are relative to the original 256x256 image.
     """
     
     original_side = 256.
+    
+    raster_dir = f"rasters/"
+    file_name = f"{label}.npy"
+    os.makedirs(raster_dir, exist_ok=True)
     
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, side, side)
     ctx = cairo.Context(surface)
@@ -75,27 +79,30 @@ def vector_to_raster(vector_images, side=28, line_diameter=16, padding=16, bg_co
     ctx.translate(total_padding / 2., total_padding / 2.)
 
     raster_images = []
-    for vector_image in vector_images:
-        # clear background
-        ctx.set_source_rgb(*bg_color)
-        ctx.paint()
-        
-        bbox = np.hstack(vector_image).max(axis=1)
-        offset = ((original_side, original_side) - bbox) / 2.
-        offset = offset.reshape(-1,1)
-        centered = [stroke + offset for stroke in vector_image]
+    
+    with open(os.path.join(raster_dir, file_name), 'wb') as f:
+        for vector_image in vector_images:
+            # clear background
+            ctx.set_source_rgb(*bg_color)
+            ctx.paint()
 
-        # draw strokes, this is the most cpu-intensive part
-        ctx.set_source_rgb(*fg_color)        
-        for xv, yv in centered:
-            ctx.move_to(xv[0], yv[0])
-            for x, y in zip(xv, yv):
-                ctx.line_to(x, y)
-            ctx.stroke()
+            bbox = np.hstack(vector_image).max(axis=1)
+            offset = ((original_side, original_side) - bbox) / 2.
+            offset = offset.reshape(-1,1)
+            centered = [stroke + offset for stroke in vector_image]
 
-        data = surface.get_data()
-        raster_image = np.copy(np.asarray(data)[::4])
-        raster_images.append(raster_image)
+            # draw strokes, this is the most cpu-intensive part
+            ctx.set_source_rgb(*fg_color)        
+            for xv, yv in centered:
+                ctx.move_to(xv[0], yv[0])
+                for x, y in zip(xv, yv):
+                    ctx.line_to(x, y)
+                ctx.stroke()
+
+            data = surface.get_data()
+            raster_image = np.copy(np.asarray(data)[::4])
+            raster_images.append(raster_image)
+            np.save(f, raster_image)
     
     return raster_images
 

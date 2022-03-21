@@ -38,6 +38,18 @@ def rand_train_test_idx(n, train_prop=.5, valid_prop=.25, seed=42):
     test_indices = perm[train_num + valid_num:]
 
     return train_indices, val_indices, test_indices
+
+def load_npy(file_path):
+    rasters = []
+    with open(file_path, 'rb') as f:
+        while True:
+            try:
+                raster_arr = np.load(f)
+                rasters.append(raster_arr)
+            except:
+                break
+    return rasters
+        
         
 class QuickDrawDataset(Dataset):
     """QuickDraw Dataset, data sourced from Google."""
@@ -71,8 +83,15 @@ class QuickDrawDataset(Dataset):
                 
                 sample_count = int(len(df)*prop)
                 
+                cached_file = f"rasters/{self.encoding[encoding_count]}.npy"
+                if os.path.exists(cached_file):
+                    print(f"Loading cached raster data from {cached_file}")
+                    sample_imgs = load_npy(cached_file)
+                    assert len(sample_imgs) == sample_count, 'Wrong number of saved rasters'
+                else:
+                    sample_imgs = vector_to_raster(df.drawing[:sample_count], self.encoding[encoding_count])
+                
                 # append array of sampled sketches to all sketches
-                sample_imgs = vector_to_raster(df.drawing[:sample_count])
                 self.sketches = self.sketches + sample_imgs
                 print("Category: {}. Finished processing {} images"
                       .format(self.encoding[encoding_count], len(sample_imgs)))
@@ -83,7 +102,7 @@ class QuickDrawDataset(Dataset):
                 continue
 
         self.sketches = np.stack(self.sketches, axis=0).reshape((len(self.sketches), height, width))
-        self.labels = np.asarray(self.labels)
+        self.labels = torch.as_tensor(self.labels)
         
         self.transform = transform
     
@@ -104,13 +123,47 @@ class QuickDrawDataset(Dataset):
         return len(self.sketches)
 
     def __getitem__(self, idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
+#         if torch.is_tensor(idx):
+#             idx = idx.tolist()
             
         img = torch.from_numpy(self.sketches[idx])
+        img = img.expand((3, -1, -1))
         label = self.labels[idx]
 
         if self.transform:
             img = self.transform(img)
 
         return img, label
+    
+
+def eval_acc(y_true, y_pred):
+    acc_list = []
+    y_true = y_true.detach().cpu().numpy()
+    y_pred = y_pred.argmax(dim=-1, keepdim=True).detach().cpu().numpy()
+
+    for i in range(y_true.shape[1]):
+        is_labeled = y_true[:, i] == y_true[:, i]
+        correct = y_true[is_labeled, i] == y_pred[is_labeled, i]
+        acc_list.append(float(np.sum(correct))/len(correct))
+
+    return sum(acc_list)/len(acc_list)
+
+@torch.no_grad()
+def evaluate(model, dataset, split_idx, result=None):
+    if result is not None:
+        out = result
+    else:
+        model.eval()
+        if not sampling:
+            out = model(dataset)
+        else:
+            out = model.inference(dataset, subgraph_loader)
+
+    train_acc = eval_acc(
+        dataset.labels[split_idx['train']], out[split_idx['train']])
+    valid_acc = eval_acc(
+        dataset.labels[split_idx['valid']], out[split_idx['valid']])
+    test_acc = eval_acc(
+        dataset.labels[split_idx['test']], out[split_idx['test']])
+
+    return train_acc, valid_acc, test_acc, out
