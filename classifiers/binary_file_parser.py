@@ -102,7 +102,7 @@ def vector_to_raster(vector_images, label, side=28, line_diameter=16, padding=16
             data = surface.get_data()
             raster_image = np.copy(np.asarray(data)[::4])
             raster_images.append(raster_image)
-            np.save(f, raster_image)
+        np.save(f, raster_images)
     
     return raster_images
 

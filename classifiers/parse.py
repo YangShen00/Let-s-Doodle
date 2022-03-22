@@ -7,7 +7,7 @@ def parse_method(args, device, dataset):
         in_channels = 28*28*1
         model = MLP(in_channels=in_channels,
                     hidden_channels=args.hidden_channels, 
-                    out_channels=2,
+                    out_channels=n_classes,
                     num_layers=args.num_layers)
     elif args.method == 'resnet':
         model = models.resnet18(pretrained=True)

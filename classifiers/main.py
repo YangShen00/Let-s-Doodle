@@ -10,6 +10,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
+from torchvision import transforms, utils
 from torch.optim.lr_scheduler import LambdaLR, StepLR, MultiStepLR
 
 from parse import parse_method, parser_add_main_args
@@ -31,9 +32,19 @@ device = f'cuda:0' if torch.cuda.is_available() else 'cpu'
 device = torch.device(device)
 if args.cpu:
     device = torch.device('cpu')
-
+    
+### Add image transforms specific to each method ###
+transforms = None
+if args.method == 'mlp':
+    transform=transforms.Compose([transforms.Lambda(lambda x: torch.flatten(x)),
+                                  transforms.Normalize((0.5, ), (0.5, ))])
+elif args.method == 'resnet':
+    transform=transforms.Compose([transforms.Lambda(lambda x: x.expand((3, -1, -1))),
+                              transforms.Resize((224, 224)),
+                              transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    
 ### Load and preprocess data ###
-dataset = QuickDrawDataset()
+dataset = QuickDrawDataset(transform=transforms)
 
 dataset.labels = dataset.labels.to(device)
 

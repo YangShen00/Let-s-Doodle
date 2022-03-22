@@ -40,14 +40,10 @@ def rand_train_test_idx(n, train_prop=.5, valid_prop=.25, seed=42):
     return train_indices, val_indices, test_indices
 
 def load_npy(file_path):
-    rasters = []
+    rasters = None
     with open(file_path, 'rb') as f:
-        while True:
-            try:
-                raster_arr = np.load(f)
-                rasters.append(raster_arr)
-            except:
-                break
+        rasters = np.load(f)
+
     return rasters
         
         
@@ -68,7 +64,7 @@ class QuickDrawDataset(Dataset):
         height, width = 28, 28
         encoding_count = 0
         self.encoding = {}
-        self.sketches = []
+        self.sketches = np.empty([0, height, width])
         self.labels = []
         
         for file in os.listdir(ndjson_directory):
@@ -84,24 +80,25 @@ class QuickDrawDataset(Dataset):
                 sample_count = int(len(df)*prop)
                 
                 cached_file = f"rasters/{self.encoding[encoding_count]}.npy"
-                if os.path.exists(cached_file):
-                    print(f"Loading cached raster data from {cached_file}")
-                    sample_imgs = load_npy(cached_file)
-                    assert len(sample_imgs) == sample_count, 'Wrong number of saved rasters'
-                else:
+                if not os.path.exists(cached_file):
+                    print(f"Generating raster data for {self.encoding[encoding_count]}.")
                     sample_imgs = vector_to_raster(df.drawing[:sample_count], self.encoding[encoding_count])
+
+                sample_imgs = load_npy(cached_file)
+                sample_imgs = sample_imgs.reshape((sample_count, height, width))
+                assert sample_imgs.shape[0] == sample_count, 'Wrong number of rasters generated'
                 
                 # append array of sampled sketches to all sketches
-                self.sketches = self.sketches + sample_imgs
+                self.sketches = np.concatenate((self.sketches, sample_imgs))
+                
                 print("Category: {}. Finished processing {} images"
-                      .format(self.encoding[encoding_count], len(sample_imgs)))
+                      .format(self.encoding[encoding_count], sample_imgs.shape[0]))
 
                 self.labels = self.labels + [encoding_count] * sample_count
                 encoding_count += 1
             else:
                 continue
 
-        self.sketches = np.stack(self.sketches, axis=0).reshape((len(self.sketches), height, width))
         self.labels = torch.as_tensor(self.labels)
         
         self.transform = transform
@@ -123,11 +120,10 @@ class QuickDrawDataset(Dataset):
         return len(self.sketches)
 
     def __getitem__(self, idx):
-#         if torch.is_tensor(idx):
-#             idx = idx.tolist()
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
             
-        img = torch.from_numpy(self.sketches[idx])
-        img = img.expand((3, -1, -1))
+        img = torch.from_numpy(self.sketches[idx]).float()
         label = self.labels[idx]
 
         if self.transform:
