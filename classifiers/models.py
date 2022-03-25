@@ -32,7 +32,6 @@ class MLP(nn.Module):
             bn.reset_parameters()
 
     def forward(self, data):
-        breakpoint()
         x = data
         for i, lin in enumerate(self.lins[:-1]):
             x = lin(x)

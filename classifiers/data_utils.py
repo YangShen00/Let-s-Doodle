@@ -1,5 +1,6 @@
 import os
 import gdown
+from tqdm import tqdm
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import torch
@@ -67,7 +68,7 @@ class QuickDrawDataset(Dataset):
         self.sketches = np.empty([0, height, width])
         self.labels = []
         
-        for file in os.listdir(ndjson_directory):
+        for file in tqdm(os.listdir(ndjson_directory)):
             filename = os.fsdecode(file)
             if filename.endswith("ndjson"):
                 # retaining only images that have been recognized
@@ -125,7 +126,7 @@ class QuickDrawDataset(Dataset):
             
         img = torch.from_numpy(self.sketches[idx]).float()
         label = self.labels[idx]
-
+        
         if self.transform:
             img = self.transform(img)
 

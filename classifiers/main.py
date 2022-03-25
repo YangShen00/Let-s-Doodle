@@ -12,6 +12,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torchvision import transforms, utils
 from torch.optim.lr_scheduler import LambdaLR, StepLR, MultiStepLR
+from torchvision import transforms, utils
 
 from parse import parse_method, parser_add_main_args
 from data_utils import QuickDrawDataset
@@ -34,17 +35,18 @@ if args.cpu:
     device = torch.device('cpu')
     
 ### Add image transforms specific to each method ###
-transforms = None
+transform = None
 if args.method == 'mlp':
-    transform=transforms.Compose([transforms.Lambda(lambda x: torch.flatten(x)),
-                                  transforms.Normalize((0.5, ), (0.5, ))])
+    transform=transforms.Compose([transforms.Lambda(lambda x: x.unsqueeze(0)),
+                              transforms.Normalize((0.5, ), (0.5, )),
+                              transforms.Lambda(lambda x: torch.flatten(x))])
 elif args.method == 'resnet':
     transform=transforms.Compose([transforms.Lambda(lambda x: x.expand((3, -1, -1))),
                               transforms.Resize((224, 224)),
                               transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     
 ### Load and preprocess data ###
-dataset = QuickDrawDataset(transform=transforms)
+dataset = QuickDrawDataset(transform=transform)
 
 dataset.labels = dataset.labels.to(device)
 
@@ -58,7 +60,7 @@ train_loader = None, None
 
 model = parse_method(args, device, dataset)
 
-# using rocauc as the eval function
+# using CrossEntropyLoss as the eval function
 criterion = nn.CrossEntropyLoss()
 
 print('MODEL:', model)
@@ -79,11 +81,11 @@ for run in range(args.runs):
                      "test": len(split_idx['test'])}
  
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, 
-                              shuffle=True, num_workers=8, pin_memory=True, drop_last=True)
+                              shuffle=True, num_workers=args.num_workers, pin_memory=True, drop_last=True)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True, 
-                            num_workers=8, pin_memory=True, drop_last=True)
+                            num_workers=args.num_workers, pin_memory=True, drop_last=True)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True, 
-                             num_workers=8, pin_memory=True, drop_last=True)
+                             num_workers=args.num_workers, pin_memory=True, drop_last=True)
 
 
     if args.adam:
@@ -145,8 +147,6 @@ for run in range(args.runs):
                 running_loss += loss.item() * len(labels)
                 _, preds = torch.max(preds, 1)
                 running_corrects += torch.sum(preds == labels)
-                if phase == "val":
-                    print(preds)
             
             if phase == 'train':
                 scheduler.step()
@@ -154,7 +154,7 @@ for run in range(args.runs):
             epoch_loss = running_loss / (dataset_sizes[phase])
             epoch_acc = running_corrects / (dataset_sizes[phase])
 
-            print('{} Loss: {:.4f} Acc: {:.4f}'.format(
+            print('Phase: {} Loss: {:.4f} Acc.: {:.4f}'.format(
                 phase, epoch_loss, epoch_acc))
 
             # deep copy the model
@@ -170,12 +170,12 @@ for run in range(args.runs):
     if save_cp:
         try:
             os.mkdir(dir_checkpoint)
-            logging.info('Created checkpoint directory')
+            print('Created checkpoint directory')
         except OSError:
             pass
         torch.save(best_model_wts,
                    dir_checkpoint + datetime.today().strftime("/resnet_%d_%b_%Y_%H_%M_%S.pth"))
-        logging.info(f'Best model weights saved !')
+        print(f'Best model weights saved !')
 
     writer.close()
 #         if epoch % args.display_step == 0:

@@ -105,7 +105,3 @@ def vector_to_raster(vector_images, label, side=28, line_diameter=16, padding=16
         np.save(f, raster_images)
     
     return raster_images
-
-# for drawing in unpack_drawings('nose.bin'):
-#     # do something with the drawing
-#     print(drawing['country_code'])
