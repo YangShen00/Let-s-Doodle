@@ -1,10 +1,13 @@
 from models import *
 from torchvision import models
 
+height, width = 28, 28
+n_channels = 1
+
 def parse_method(args, device, dataset):
     n_classes = len(dataset.encoding)
     if args.method == 'mlp':
-        in_channels = 28*28*1
+        in_channels = height*width*n_channels
         model = MLP(in_channels=in_channels,
                     hidden_channels=args.hidden_channels, 
                     out_channels=n_classes,
@@ -31,6 +34,8 @@ def parser_add_main_args(parser):
     parser.add_argument('--weight_decay', type=float, default=1e-3)
     parser.add_argument('--display_step', type=int,
                         default=1, help='how often to print')
+    parser.add_argument('--num_workers', type=int,
+                        default=0, help='number of workers to use for dataloader')
     parser.add_argument('--batch_size', '-b', type=int, default=32, help='Batch size')
     parser.add_argument('--hops', type=int, default=1,
                         help='power of adjacency matrix for certain methods')
