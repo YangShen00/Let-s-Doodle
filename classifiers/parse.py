@@ -13,6 +13,12 @@ def parse_method(args, device, dataset):
         model = models.resnet18(pretrained=True)
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, n_classes)
+    elif args.method == 'cnn':
+        in_channels = 28*28*1
+        model = MLP(in_channels=in_channels,
+                    hidden_channels=args.hidden_channels, 
+                    out_channels=n_classes,
+                    num_layers=args.num_layers)
     return model
 
 def parser_add_main_args(parser):

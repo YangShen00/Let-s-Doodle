@@ -34,7 +34,7 @@ if args.cpu:
     device = torch.device('cpu')
     
 ### Add image transforms specific to each method ###
-transforms = None
+transform = None
 if args.method == 'mlp':
     transform=transforms.Compose([transforms.Lambda(lambda x: torch.flatten(x)),
                                   transforms.Normalize((0.5, ), (0.5, ))])
@@ -44,7 +44,7 @@ elif args.method == 'resnet':
                               transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     
 ### Load and preprocess data ###
-dataset = QuickDrawDataset(transform=transforms)
+dataset = QuickDrawDataset(transform=transform)
 
 dataset.labels = dataset.labels.to(device)
 
