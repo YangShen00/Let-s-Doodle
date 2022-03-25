@@ -23,7 +23,7 @@ def parser_add_main_args(parser):
     parser.add_argument('--dropout', type=float, default=0.5)
     parser.add_argument('--lr', type=float, default=0.01)
     parser.add_argument('--method', '-m', type=str, default='mlp')
-    parser.add_argument('--epochs', type=int, default=500)
+    parser.add_argument('--epochs', type=int, default=50)
     parser.add_argument('--cpu', action='store_true')
     parser.add_argument('--weight_decay', type=float, default=1e-3)
     parser.add_argument('--display_step', type=int,
@@ -37,6 +37,7 @@ def parser_add_main_args(parser):
                         help='number of layers for deep methods')
     parser.add_argument('--runs', type=int, default=1,
                         help='number of distinct runs')
+    parser.add_argument("--save_cp", action='store_true', help='save best model weights')
     parser.add_argument('--adam', action='store_true', help='use adam instead of adamW')
     parser.add_argument("--SGD", action='store_true', help='Use SGD as optimizer')
 
