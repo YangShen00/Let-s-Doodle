@@ -32,7 +32,7 @@ function App() {
   const seconds = 5
 
   const [[mins, secs], setTime] = React.useState([minutes, seconds]);
-  const [prompt, setPrompt] = React.useState("start")
+  const [prompt, setPrompt] = React.useState("circle")
   const [score, setScore] = React.useState(0)
 
   const library = ['book', 'car', 'bird', 'dog', 'flower', 'bottle']
@@ -59,7 +59,20 @@ function App() {
   };
 
   // TODO: the function to evaluate the result
-  const evaluate = () => true;
+  const evaluateA = () => true;
+
+
+  const requestOptions = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image })
+  };
+
+  const evaluate = () => {
+    const response = await fetch('http://localhost:3000/evaluate', requestOptions);
+    const data = await response.json();
+    this.setState({ postId: data.id });
+  }
 
   const reset = () => setTime([parseInt(minutes), parseInt(seconds)]);
 
