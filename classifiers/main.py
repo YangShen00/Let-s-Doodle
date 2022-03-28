@@ -178,4 +178,3 @@ for run in range(args.runs):
         torch.save(best_model_wts,
                    dir_checkpoint + datetime.today().strftime("/resnet_%d_%b_%Y_%H_%M_%S.pth"))
         print(f'Best model weights saved !')
-    
