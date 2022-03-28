@@ -17,11 +17,13 @@ def parse_method(args, device, dataset):
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, n_classes)
     elif args.method == 'cnn':
-        in_channels = 28*28*1
-        model = MLP(in_channels=in_channels,
-                    hidden_channels=args.hidden_channels, 
+        n_classes = 11
+        in_channels=height*width*n_channels
+        model = CNN(in_channels=in_channels,
+                    hidden_channels = 32,
                     out_channels=n_classes,
-                    num_layers=args.num_layers)
+                    kernel_size=3,
+                    dropout=.5)
     return model
 
 def parser_add_main_args(parser):
