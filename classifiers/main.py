@@ -5,6 +5,7 @@ import time
 import copy
 
 from tqdm import tqdm
+from datetime import datetime
 import numpy as np
 import torch
 import torch.nn as nn
@@ -27,7 +28,7 @@ parser_add_main_args(parser)
 args = parser.parse_args()
 print(args)
 
-dir_checkpoint = f"{args.method}/"
+dir_checkpoint = f"model_weights/{args.method}/"
 
 device = f'cuda:0' if torch.cuda.is_available() else 'cpu'
 device = torch.device(device)
@@ -65,6 +66,7 @@ criterion = nn.CrossEntropyLoss()
 
 print('MODEL:', model)
 
+since = time.time()
 ### Training loop ###
 for run in range(args.runs):
 #     split_idx = split_idx_lst[run]
@@ -167,47 +169,13 @@ for run in range(args.runs):
     time_elapsed // 60, time_elapsed % 60))
     print('Best val accuracy: {:4f}'.format(best_acc))
 
-    if save_cp:
+    if args.save_cp:
         try:
-            os.mkdir(dir_checkpoint)
+            os.makedirs(dir_checkpoint, exist_ok=True)
             print('Created checkpoint directory')
         except OSError:
             pass
         torch.save(best_model_wts,
                    dir_checkpoint + datetime.today().strftime("/resnet_%d_%b_%Y_%H_%M_%S.pth"))
         print(f'Best model weights saved !')
-
-    writer.close()
-#         if epoch % args.display_step == 0:
-#             print(f'Epoch: {epoch:02d}, '
-#                   f'Loss: {loss:.4f}, '
-#                   f'Train: {100 * result[0]:.2f}%, '
-#                   f'Valid: {100 * result[1]:.2f}%, '
-#                   f'Test: {100 * result[2]:.2f}%')
-#             if args.print_prop:
-#                 pred = out.argmax(dim=-1, keepdim=True)
-#                 print("Predicted proportions:", pred.unique(return_counts=True)[1].float()/pred.shape[0])
-#     logger.print_statistics(run)
-#     if args.method == 'cs':
-#         torch.save(best_out, f'{model_dir}/{run}.pt')
-#         _, out_cs = double_correlation_autoscale(dataset.label, best_out.cpu(),
-#             split_idx, DAD, 0.5, 50, DAD, 0.5, 50, num_hops=args.hops)
-#         result = evaluate(model, dataset, split_idx, eval_func, out_cs)
-#         cs_logger.add_result(run, (), (result[1], result[2]))
-
-
-# ### Save results ###
-# if args.method == 'cs':
-#     print('Valid acc -> Test acc')
-#     res = cs_logger.display()
-#     best_val, best_test = res[:, 0], res[:, 1]
-# else:
-#     best_val, best_test = logger.print_statistics()
-# filename = f'results/{args.dataset}.csv'
-# print(f"Saving results to {filename}")
-# with open(f"{filename}", 'a+') as write_obj:
-#     sub_dataset = f'{args.sub_dataset},' if args.sub_dataset else ''
-#     write_obj.write(f"{args.method}," + f"{sub_dataset}" +
-#                     f"{best_val.mean():.3f} ± {best_val.std():.3f}," +
-#                     f"{best_test.mean():.3f} ± {best_test.std():.3f}\n")
     
