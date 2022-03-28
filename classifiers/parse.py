@@ -18,7 +18,7 @@ def parse_method(args, device, dataset):
         model.fc = nn.Linear(num_ftrs, n_classes)
     elif args.method == 'cnn':
         n_classes = 11
-        in_channels=height*width*n_channels
+        in_channels = 3
         model = CNN(in_channels=in_channels,
                     hidden_channels = 32,
                     out_channels=n_classes,
