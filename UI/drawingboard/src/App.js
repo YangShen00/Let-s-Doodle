@@ -39,7 +39,10 @@ function App() {
 
   const tick = () => {
     if (secs % 10 == 0) {
-      var result = evaluate();
+      var canvas = document.getElementById('canvas');
+      setDataUrl(canvas.toDataURL())
+      console.log(dataUrl)
+      var result = evaluateA();
       if (result === true) {
         reset()
         setPrompt(library[Math.floor(Math.random() * library.length)])
@@ -61,17 +64,19 @@ function App() {
   // TODO: the function to evaluate the result
   const evaluateA = () => true;
 
+  const [dataUrl, setDataUrl] = useState("")
 
   const requestOptions = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image })
+    body: JSON.stringify({ dataUrl })
   };
 
-  const evaluate = () => {
-    const response = await fetch('http://localhost:3000/evaluate', requestOptions);
+  async function evaluate() {
+    takeScreenShot(canvasRef.current)
+    const response = await fetch('http://localhost:9000/evaluate', requestOptions);
     const data = await response.json();
-    this.setState({ postId: data.id });
+    console.log(data)
   }
 
   const reset = () => setTime([parseInt(minutes), parseInt(seconds)]);
@@ -157,7 +162,8 @@ function App() {
           <button className="button" onClick={clearCanvas}>Clear</button>
         </div>
         <p>Current Score: {score}</p>
-        <button onClick={downloadScreenshot}>Evaluate drawing</button>
+        <button onClick={downloadScreenshot}>Download</button>
+        <button onClick={() => evaluate()}>Evaluate</button>
       </div>
 
       <canvas id="canvas"
