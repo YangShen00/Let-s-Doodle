@@ -29,6 +29,7 @@ args = parser.parse_args()
 print(args)
 
 dir_checkpoint = f"model_weights/{args.method}/"
+dir_results = f"results/"
 
 device = f'cuda:0' if torch.cuda.is_available() else 'cpu'
 device = torch.device(device)
@@ -102,14 +103,16 @@ for run in range(args.runs):
     scheduler = StepLR(optimizer, step_size=5, gamma=0.1)
     
     best_model_wts = copy.deepcopy(model.state_dict())
-    best_acc = 0.0
+    best_val_acc = 0.0
+    best_idx = None
+    test_accs = []
     
     for epoch in range(args.epochs):
         print('Epoch {}/{}'.format(epoch, args.epochs - 1))
         print('-' * 10)
         
         # Each epoch has a training and validation phase
-        for phase in ['train', 'val']:
+        for phase in ['train', 'val', 'test']:
             if phase == 'train':
                 model.train()  # Set model to training mode
                 data_loader = train_loader
@@ -135,7 +138,6 @@ for run in range(args.runs):
 
                 with torch.set_grad_enabled(phase == 'train'):
                     preds = model(imgs)
-#                     breakpoint()
 
                     loss = criterion(preds, labels)
 
@@ -160,14 +162,19 @@ for run in range(args.runs):
                 phase, epoch_loss, epoch_acc))
 
             # deep copy the model
-            if phase == 'val' and epoch_acc > best_acc:
-                best_acc = epoch_acc
+            if phase == 'val' and epoch_acc > best_val_acc:
+                best_val_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
+                best_idx = len(test_accs)
+                
+            if phase == 'test':
+                test_accs.append(epoch_acc)
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(
     time_elapsed // 60, time_elapsed % 60))
-    print('Best val accuracy: {:4f}'.format(best_acc))
+    print('Best val accuracy: {:4f}'.format(best_val_acc))
+    print('Associated test accuracy: {:4f}'.format(test_accs[best_idx]))
 
     if args.save_cp:
         try:
@@ -175,6 +182,23 @@ for run in range(args.runs):
             print('Created checkpoint directory')
         except OSError:
             pass
+        model_name = datetime.today().strftime(f"/{args.method}%d_%b_%Y_%H_%M_%S.pth")
         torch.save(best_model_wts,
-                   dir_checkpoint + datetime.today().strftime("/resnet_%d_%b_%Y_%H_%M_%S.pth"))
+                   dir_checkpoint + model_name)
         print(f'Best model weights saved !')
+
+        ### writing results
+        try:
+            os.makedirs(dir_results, exist_ok=True)
+            print('Created results directory')
+        except OSError:
+            pass
+
+        filename = f'results/{len(dataset.encoding)}_classes.csv'
+        print(f"Saving results to {filename}")
+        with open(f"{filename}", 'a+') as write_obj:
+            write_obj.write(f"{args.method}," + 
+                            f"{model_name}," +
+                            "{:.0f}m {:.0f}s,".format(time_elapsed // 60, time_elapsed % 60) +
+                            f"{best_val_acc}," +
+                            f"{test_accs[best_idx]}\n")
