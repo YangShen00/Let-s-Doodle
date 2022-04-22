@@ -16,6 +16,14 @@ def parse_method(args, device, dataset):
         model = models.resnet18(pretrained=True)
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, n_classes)
+    elif args.method == 'cnn':
+        n_classes = 11
+        in_channels = 3
+        model = CNN(in_channels=in_channels,
+                    hidden_channels = 32,
+                    out_channels=n_classes,
+                    kernel_size=3,
+                    dropout=.5)
     return model
 
 def parser_add_main_args(parser):
