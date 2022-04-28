@@ -32,6 +32,7 @@ print(args)
 
 dir_checkpoint = f"model_weights/{args.method}/"
 dir_results = f"results/"
+dir_logs = f"logs/"
 
 device = f'cuda:0' if torch.cuda.is_available() else 'cpu'
 device = torch.device(device)
@@ -185,23 +186,37 @@ for run in range(args.runs):
     print('Associated test accuracy: {:4f}'.format(test_accs[best_idx]))
 
     if args.save_cp:
-        try:
-            os.makedirs(dir_checkpoint, exist_ok=True)
-            print('Created checkpoint directory')
-        except OSError:
-            pass
+        if not os.path.exists(dir_checkpoint):
+            try:
+                os.makedirs(dir_checkpoint, exist_ok=True)
+                print('Created checkpoint directory')
+            except OSError:
+                pass
         model_name = datetime.today().strftime(
-            f"/{args.method}%d_%b_%Y_%H_%M_%S.pth")
+            f"/{args.method}%d_%b_%Y_%H_%M_%S")
         torch.save(best_model_wts,
-                   dir_checkpoint + model_name)
+                   dir_checkpoint + model_name + ".pth")
         print(f'Best model weights saved !')
-
+        
+        # writing arguments to log
+        if not os.path.exists(dir_logs):
+            try:
+                os.makedirs(dir_logs, exist_ok=True)
+                print('Created log directory')
+            except OSError:
+                pass
+        
+        logsname = f"logs/{model_name}"
+        with open(f"{logsname}", 'a+') as write_obj:
+            write_obj.write(f"{args}\n")
+        
         # writing results
-        try:
-            os.makedirs(dir_results, exist_ok=True)
-            print('Created results directory')
-        except OSError:
-            pass
+        if not os.path.exists(dir_results):
+            try:
+                os.makedirs(dir_results, exist_ok=True)
+                print('Created results directory')
+            except OSError:
+                pass
 
         filename = f'results/{len(dataset.encoding)}_classes.csv'
         print(f"Saving results to {filename}")
