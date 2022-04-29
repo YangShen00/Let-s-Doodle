@@ -74,7 +74,7 @@ class CNN(nn.Module):
       x = F.relu(x)
 
       # Run max pooling over x
-      x = F.max_pool2d(x,kernel_size = 2, stride = 2)
+      x = F.max_pool2d(x,kernel_size = kernel_size, stride = 2)
       # Pass data through dropout1
       x = self.dropout1(x)
       # Flatten x with start_dim=1
