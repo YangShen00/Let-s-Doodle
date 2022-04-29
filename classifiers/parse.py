@@ -2,13 +2,15 @@ from models import *
 from torchvision import models
 
 height, width = 28, 28
-n_channels = 1
+n_channels_mlp = 1
+
+n_channels_cnn = 3
 
 
 def parse_method(args, device, dataset):
     n_classes = len(dataset.encoding)
     if args.method == 'mlp':
-        in_channels = height*width*n_channels
+        in_channels = height*width*n_channels_mlp
         model = MLP(in_channels=in_channels,
                     hidden_channels=args.hidden_channels,
                     out_channels=n_classes,
@@ -18,17 +20,21 @@ def parse_method(args, device, dataset):
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, n_classes)
     elif args.method == 'cnn':
-        in_channels = 3
+        in_channels = n_channels_cnn
         model = CNN(in_channels=in_channels,
                     hidden_channels=args.hidden_channels,
                     out_channels=n_classes,
-                    kernel_size=3,
-                    dropout=args.dropout)
+                    kernel_size=args.kernel_size,
+                    dropout1=args.dropout1,
+                    dropout2=args.dropout2)
     return model
 
 
 def parser_add_main_args(parser):
     parser.add_argument('--hidden_channels', type=int, default=32)
+    parser.add_argument('--kernel_size', type=int, default=3)
+    parser.add_argument('--dropout1', type=float, default=0.25)
+    parser.add_argument('--dropout2', type=float, default=0.5)
     parser.add_argument('--dropout', type=float, default=0.5)
     parser.add_argument('--lr', type=float, default=0.01)
     parser.add_argument('--method', '-m', type=str, default='mlp')
