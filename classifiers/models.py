@@ -58,7 +58,7 @@ class CNN(nn.Module):
                             stride=1)
       self.dropout1 = nn.Dropout(dropout1)
       self.dropout2 = nn.Dropout(dropout2)
-      D2 = ((28 -kernel_size+1)-kernel_size+1)/2
+      D2 = int(((28 -kernel_size+1)-kernel_size+1)/2)
       self.fc1 = nn.Linear( hidden_channels*D2*D2, 128)
       self.fc2 = nn.Linear(128, out_channels)
     
