@@ -70,10 +70,9 @@ def getEvaluation():
     print('initial img size', im.shape)
 
     transform = transforms.Compose([
-        # transforms.Resize((28, 28)),
-        transforms.Lambda(lambda x: x.unsqueeze(0)),
-        transforms.Normalize((0.5, ), (0.5, )),
-        transforms.Lambda(lambda x: torch.flatten(x))
+        transforms.Lambda(lambda x: x.expand((3, -1, -1))),
+        transforms.Resize((28, 28)),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
     input_image = transform(im)
@@ -81,10 +80,10 @@ def getEvaluation():
 
     print("input_image: ", input_image)
     print('size', input_image.shape)
-    model = MLP(28 * 28, 32, 11, 2)
+    model = CNN(3, 32, 11, 3, 0.25, 0.5)
     model.load_state_dict(
         torch.load(
-            '../../classifiers/model_weights/mlp/mlp18_Apr_2022_19_17_00.pth'))
+            '../../classifiers/model_weights/cnn/cnn29_Apr_2022_21_54_43.pth'))
 
     model.eval()
     preds = model(input_image)

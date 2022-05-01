@@ -51,17 +51,21 @@ class MLP(nn.Module):
 class CNN(nn.Module):
     """ adapted from https://medium.com/@nutanbhogendrasharma/pytorch-convolutional-neural-network-with-mnist-dataset-4e8a4265e118 """
 
-    def __init__(self, in_channels, out_channels, hidden_channels, kernel_size,
-                 dropout):
+    def __init__(self, in_channels, hidden_channels, out_channels, kernel_size,
+                 dropout1, dropout2):
         super(CNN, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=3,
-                               out_channels=32,
+        self.conv1 = nn.Conv2d(in_channels=in_channels,
+                               out_channels=hidden_channels,
                                kernel_size=kernel_size,
                                stride=1)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1)
-        self.dropout1 = nn.Dropout2d(0.25)
-        self.dropout2 = nn.Dropout2d(0.5)
-        self.fc1 = nn.Linear(4608, 128)
+        self.conv2 = nn.Conv2d(in_channels=hidden_channels,
+                               out_channels=hidden_channels,
+                               kernel_size=kernel_size,
+                               stride=1)
+        self.dropout1 = nn.Dropout(dropout1)
+        self.dropout2 = nn.Dropout(dropout2)
+        D2 = int(((28 - kernel_size + 1) - kernel_size + 1) / 2)
+        self.fc1 = nn.Linear(hidden_channels * D2 * D2, 128)
         self.fc2 = nn.Linear(128, out_channels)
 
     # x represents our data
@@ -75,7 +79,7 @@ class CNN(nn.Module):
         x = F.relu(x)
 
         # Run max pooling over x
-        x = F.max_pool2d(x, 2)
+        x = F.max_pool2d(x, kernel_size=2, stride=2)
         # Pass data through dropout1
         x = self.dropout1(x)
         # Flatten x with start_dim=1
