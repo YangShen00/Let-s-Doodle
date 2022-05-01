@@ -29,11 +29,12 @@ function App() {
 
   // TODO: decrease time in each round
   const minutes = 0
-  const seconds = 5
+  const seconds = 15
 
   const [[mins, secs], setTime] = React.useState([minutes, seconds]);
   const [prompt, setPrompt] = React.useState("circle")
   const [score, setScore] = React.useState(0)
+  const [stop, setStop] = React.useState(false)
 
   const library = ['book', 'car', 'bird', 'dog', 'flower', 'bottle']
 
@@ -54,6 +55,7 @@ function App() {
 
     if (mins === 0 && secs === 0) {
       // TODO: game should end here
+      setStop(true)
     } else if (secs === 0) {
       setTime([mins - 1, 59]);
     } else {
@@ -105,7 +107,7 @@ function App() {
     context.scale(2, 2)
     context.lineCap = "round"
     context.strokeStyle = "black"
-    context.lineWidth = 5
+    context.lineWidth = 20
     contextRef.current = context;
   }, [])
 
@@ -139,8 +141,17 @@ function App() {
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
 
+  // if (stop) {
+  //   return (
+  //     <div>
+  //       <p> stopped</p>
+  //     </div>
+  //   )
+  // }
+  // else {
 
   return (
+
     <div>
 
       <div className="App">
@@ -178,5 +189,7 @@ function App() {
 
   );
 }
+
+// }
 
 export default App;
