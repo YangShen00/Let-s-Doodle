@@ -14,6 +14,10 @@ import numpy as np
 
 from models import *
 
+import os
+
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
@@ -28,7 +32,7 @@ CORS(app, support_credentials=True)
 def getEvaluation():
 
     input_json = request.get_json(force=True)
-    print("input_json", input_json['dataUrl'])
+    # print("input_json", input_json['dataUrl'])
     image_input = input_json['dataUrl'].split(',')[1]
     # image_input = request.values['imageBase64']
 
@@ -67,7 +71,7 @@ def getEvaluation():
     im = im[:size, :size]
     im = torch.from_numpy(im).float()
     # print(im)
-    print('initial img size', im.shape)
+    # print('initial img size', im.shape)
 
     transform = transforms.Compose([
         transforms.Lambda(lambda x: x.expand((3, -1, -1))),
@@ -78,7 +82,7 @@ def getEvaluation():
     input_image = transform(im)
     input_image = input_image[None, :]
 
-    print("input_image: ", input_image)
+    # print("input_image: ", input_image)
     print('size', input_image.shape)
     model = CNN(3, 32, 11, 3, 0.25, 0.5)
     model.load_state_dict(
