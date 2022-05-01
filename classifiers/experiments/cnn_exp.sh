@@ -1,10 +1,7 @@
 #!/bin/bash
 
-hidden_channels_lst=(16 32 64 128 256)
-dropout_lst=(0 .5)
+lr_lst=(0.001 0.002 0.003 0.004 0.005)
 
-for hidden_channels in "${hidden_channels_lst[@]}"; do
-    for dropout in "${dropout_lst[@]}"; do
-        python main.py --method cnn --dropout $dropout --hidden_channels $hidden_channels --display_step 25
-    done
+for lr in "${lr_lst[@]}"; do
+    python3 main.py --method cnn --display_step 25 --SGD --lr $lr --save_cp
 done
