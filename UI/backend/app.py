@@ -32,9 +32,9 @@ CORS(app, support_credentials=True)
 def getEvaluation():
 
     input_json = request.get_json(force=True)
-    print(input_json)
+    # print(input_json)
     image_input = input_json['dataUrl'].split(',')[1]
-    print(image_input)
+    # print(image_input)
 
     im = Image.open(BytesIO(base64.b64decode(image_input))).convert("RGBA")
     im = im.resize((28, 28))
@@ -65,8 +65,8 @@ def getEvaluation():
     model.fc = nn.Linear(num_ftrs, 30)
     model.load_state_dict(
         torch.load(
-            '../../classifiers/model_weights/resnet/resnet05_May_2022_11_46_38.pth'
-        ))
+            '../../classifiers/model_weights/resnet/resnet05_May_2022_11_46_38.pth',
+            map_location=torch.device('cpu')))
 
     model.eval()
     preds = model(input_image)
