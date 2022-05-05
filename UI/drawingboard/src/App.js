@@ -29,7 +29,7 @@ function App() {
 
   // TODO: decrease time in each round
   const minutes = 0
-  const seconds = 15
+  const seconds = 5
 
   const [[mins, secs], setTime] = React.useState([minutes, seconds]);
   const [prompt, setPrompt] = React.useState("circle")
@@ -142,55 +142,57 @@ function App() {
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  if (stop) {
-    return (
-      <div>
-        <p> stopped</p>
-      </div>
-    )
-  }
-  else {
+  // if (stop) {
+  //   return (
+  //     <div className="stopbackground">
+  //       <p className="stop"> stopped</p>
+  //       <p className="stop"> your score is {score}</p>
+  //       <p className="stop"> please refresh to restart</p>
+  //     </div>
+  //   )
+  // }
+  // else {
 
-    return (
+  return (
 
-      <div>
+    <div>
 
-        <div className="App">
-          <header className="App-header">
-            <p>
-              Lets Doodle
-            </p>
+      <div className="App">
+        <header className="App-header">
+          <p>
+            Lets Doodle
+          </p>
 
-          </header>
-        </div>
-
-        <div className="info">
-
-          {/* <Timer MinSecs={minSecs} /> */}
-          {/* <Prompt /> */}
-          <div className="border">
-            <p className='timer'>{`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`}</p>
-            <a className='prompt'>{prompt}</a>
-            <button className="button" onClick={clearCanvas}>Clear</button>
-          </div>
-          <p>Current Score: {score}</p>
-          {/* <button onClick={downloadScreenshot}>Download</button> */}
-          {/* <button onClick={() => evaluate()}>Evaluate</button> */}
-        </div>
-
-        <canvas id="canvas"
-          onMouseDown={startDrawing}
-          onMouseUp={finishDrawing}
-          onMouseMove={draw}
-          ref={canvasRef}
-        ></canvas>
-
-
+        </header>
       </div>
 
-    );
-  }
+      <div className="info">
 
+        {/* <Timer MinSecs={minSecs} /> */}
+        {/* <Prompt /> */}
+        <div className="border">
+          <p className='timer'>{`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`}</p>
+          <a className='prompt'>{prompt}</a>
+          <button className="button" onClick={clearCanvas}>Clear</button>
+        </div>
+        <p>Current Score: {score}</p>
+        {/* <button onClick={downloadScreenshot}>Download</button> */}
+        {/* <button onClick={() => evaluate()}>Evaluate</button> */}
+      </div>
+
+      <canvas id="canvas"
+        onMouseDown={startDrawing}
+        onMouseUp={finishDrawing}
+        onMouseMove={draw}
+        ref={canvasRef}
+      ></canvas>
+
+
+    </div>
+
+  );
 }
+
+// }
 
 export default App;
