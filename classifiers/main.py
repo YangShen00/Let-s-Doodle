@@ -69,6 +69,7 @@ train_loader = None, None
 ### Load method ###
 
 model = parse_method(args, device, dataset)
+model = model.to(device)
 
 # using CrossEntropyLoss as the eval function
 criterion = nn.CrossEntropyLoss()
@@ -92,11 +93,11 @@ for run in range(args.runs):
                      "test": len(split_idx['test'])}
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
-                              shuffle=True, num_workers=args.num_workers, pin_memory=True, drop_last=True)
+                              shuffle=True, num_workers=args.num_workers, pin_memory=False, drop_last=True)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True,
-                            num_workers=args.num_workers, pin_memory=True, drop_last=True)
+                            num_workers=args.num_workers, pin_memory=False, drop_last=True)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True,
-                             num_workers=args.num_workers, pin_memory=True, drop_last=True)
+                             num_workers=args.num_workers, pin_memory=False, drop_last=True)
 
     if args.adam:
         optimizer = torch.optim.Adam(
