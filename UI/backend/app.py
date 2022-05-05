@@ -9,7 +9,7 @@ import sys
 import logging
 
 import torch
-from torchvision import transforms, utils
+from torchvision import transforms, utils, models
 import numpy as np
 
 from models import *
@@ -32,7 +32,9 @@ CORS(app, support_credentials=True)
 def getEvaluation():
 
     input_json = request.get_json(force=True)
+    print(input_json)
     image_input = input_json['dataUrl'].split(',')[1]
+    print(image_input)
 
     im = Image.open(BytesIO(base64.b64decode(image_input))).convert("RGBA")
     im = im.resize((28, 28))
@@ -48,7 +50,7 @@ def getEvaluation():
 
     transform = transforms.Compose([
         transforms.Lambda(lambda x: x.expand((3, -1, -1))),
-        transforms.Resize((28, 28)),
+        transforms.Resize((224, 224)),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
@@ -57,10 +59,14 @@ def getEvaluation():
 
     # print("input_image: ", input_image)
     print('size', input_image.shape)
-    model = CNN(3, 32, 11, 3, 0.25, 0.5)
+
+    model = models.resnet18(pretrained=True)
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Linear(num_ftrs, 30)
     model.load_state_dict(
         torch.load(
-            '../../classifiers/model_weights/cnn/cnn29_Apr_2022_21_54_43.pth'))
+            '../../classifiers/model_weights/resnet/resnet05_May_2022_11_46_38.pth'
+        ))
 
     model.eval()
     preds = model(input_image)
