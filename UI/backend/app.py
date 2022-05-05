@@ -9,7 +9,7 @@ import sys
 import logging
 
 import torch
-from torchvision import transforms, utils
+from torchvision import transforms, utils, models
 import numpy as np
 
 from models import *
@@ -32,50 +32,25 @@ CORS(app, support_credentials=True)
 def getEvaluation():
 
     input_json = request.get_json(force=True)
-    # print("input_json", input_json['dataUrl'])
+    print(input_json)
     image_input = input_json['dataUrl'].split(',')[1]
-    # image_input = request.values['imageBase64']
-
-    # img = Image.open(StringIO(image_input))
-
-    # print("image_input: ", image_input)
-    # print("base64: ", base64.b64decode(image_input))
-
-    image = Image.open(BytesIO(base64.b64decode(image_input)))
-
-    # img = image.resize((28, 28), Image.ANTIALIAS)
-    # # pixels.shape == (28, 28, 4)
-    # pixels = np.asarray(img, dtype='uint8')
-    # # force (28, 28)
-    # pixels = np.resize(pixels, (28, 28))
-    # # image is distorted
-    # img = Image.fromarray(pixels)
-    # img.show()
-
-    # image.show()
-
-    # image.save(BytesIO(), 'PNG')
-
-    # im = torch.from_numpy(
-    #     np.array(Image.open(BytesIO(base64.b64decode(image_input))))).float()
+    print(image_input)
 
     im = Image.open(BytesIO(base64.b64decode(image_input))).convert("RGBA")
     im = im.resize((28, 28))
     new_im = Image.new("RGBA", im.size, "WHITE")
     new_im.paste(im, mask=im)
     im_rgb = new_im.convert('RGB').convert('L')
-    im_rgb.show()
+    # im_rgb.show()
 
     im = np.array(im_rgb)
     size = min(im.shape[0], im.shape[1])
     im = im[:size, :size]
     im = torch.from_numpy(im).float()
-    # print(im)
-    # print('initial img size', im.shape)
 
     transform = transforms.Compose([
         transforms.Lambda(lambda x: x.expand((3, -1, -1))),
-        transforms.Resize((28, 28)),
+        transforms.Resize((224, 224)),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
@@ -84,10 +59,14 @@ def getEvaluation():
 
     # print("input_image: ", input_image)
     print('size', input_image.shape)
-    model = CNN(3, 32, 11, 3, 0.25, 0.5)
+
+    model = models.resnet18(pretrained=True)
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Linear(num_ftrs, 30)
     model.load_state_dict(
         torch.load(
-            '../../classifiers/model_weights/cnn/cnn29_Apr_2022_21_54_43.pth'))
+            '../../classifiers/model_weights/resnet/resnet05_May_2022_11_46_38.pth'
+        ))
 
     model.eval()
     preds = model(input_image)
