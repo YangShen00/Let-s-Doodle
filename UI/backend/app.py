@@ -32,46 +32,19 @@ CORS(app, support_credentials=True)
 def getEvaluation():
 
     input_json = request.get_json(force=True)
-    # print("input_json", input_json['dataUrl'])
     image_input = input_json['dataUrl'].split(',')[1]
-    # image_input = request.values['imageBase64']
-
-    # img = Image.open(StringIO(image_input))
-
-    # print("image_input: ", image_input)
-    # print("base64: ", base64.b64decode(image_input))
-
-    image = Image.open(BytesIO(base64.b64decode(image_input)))
-
-    # img = image.resize((28, 28), Image.ANTIALIAS)
-    # # pixels.shape == (28, 28, 4)
-    # pixels = np.asarray(img, dtype='uint8')
-    # # force (28, 28)
-    # pixels = np.resize(pixels, (28, 28))
-    # # image is distorted
-    # img = Image.fromarray(pixels)
-    # img.show()
-
-    # image.show()
-
-    # image.save(BytesIO(), 'PNG')
-
-    # im = torch.from_numpy(
-    #     np.array(Image.open(BytesIO(base64.b64decode(image_input))))).float()
 
     im = Image.open(BytesIO(base64.b64decode(image_input))).convert("RGBA")
     im = im.resize((28, 28))
     new_im = Image.new("RGBA", im.size, "WHITE")
     new_im.paste(im, mask=im)
     im_rgb = new_im.convert('RGB').convert('L')
-    im_rgb.show()
+    # im_rgb.show()
 
     im = np.array(im_rgb)
     size = min(im.shape[0], im.shape[1])
     im = im[:size, :size]
     im = torch.from_numpy(im).float()
-    # print(im)
-    # print('initial img size', im.shape)
 
     transform = transforms.Compose([
         transforms.Lambda(lambda x: x.expand((3, -1, -1))),

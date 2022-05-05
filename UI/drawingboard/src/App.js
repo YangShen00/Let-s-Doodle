@@ -59,6 +59,7 @@ function App() {
     } else if (secs === 0) {
       setTime([mins - 1, 59]);
     } else {
+      evaluate()
       setTime([mins, secs - 1]);
     }
   };
@@ -141,55 +142,55 @@ function App() {
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  // if (stop) {
-  //   return (
-  //     <div>
-  //       <p> stopped</p>
-  //     </div>
-  //   )
-  // }
-  // else {
-
-  return (
-
-    <div>
-
-      <div className="App">
-        <header className="App-header">
-          <p>
-            Lets Doodle
-          </p>
-
-        </header>
+  if (stop) {
+    return (
+      <div>
+        <p> stopped</p>
       </div>
+    )
+  }
+  else {
 
-      <div className="info">
+    return (
 
-        {/* <Timer MinSecs={minSecs} /> */}
-        {/* <Prompt /> */}
-        <div className="border">
-          <p className='timer'>{`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`}</p>
-          <a className='prompt'>{prompt}</a>
-          <button className="button" onClick={clearCanvas}>Clear</button>
+      <div>
+
+        <div className="App">
+          <header className="App-header">
+            <p>
+              Lets Doodle
+            </p>
+
+          </header>
         </div>
-        <p>Current Score: {score}</p>
-        <button onClick={downloadScreenshot}>Download</button>
-        <button onClick={() => evaluate()}>Evaluate</button>
+
+        <div className="info">
+
+          {/* <Timer MinSecs={minSecs} /> */}
+          {/* <Prompt /> */}
+          <div className="border">
+            <p className='timer'>{`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`}</p>
+            <a className='prompt'>{prompt}</a>
+            <button className="button" onClick={clearCanvas}>Clear</button>
+          </div>
+          <p>Current Score: {score}</p>
+          {/* <button onClick={downloadScreenshot}>Download</button> */}
+          {/* <button onClick={() => evaluate()}>Evaluate</button> */}
+        </div>
+
+        <canvas id="canvas"
+          onMouseDown={startDrawing}
+          onMouseUp={finishDrawing}
+          onMouseMove={draw}
+          ref={canvasRef}
+        ></canvas>
+
+
       </div>
 
-      <canvas id="canvas"
-        onMouseDown={startDrawing}
-        onMouseUp={finishDrawing}
-        onMouseMove={draw}
-        ref={canvasRef}
-      ></canvas>
+    );
+  }
 
-
-    </div>
-
-  );
 }
-
-// }
 
 export default App;
