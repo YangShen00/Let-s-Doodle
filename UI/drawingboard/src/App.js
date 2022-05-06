@@ -62,7 +62,7 @@ function App() {
 
   // TODO: decrease time in each round
   const minutes = 0
-  const seconds = 5
+  const seconds = 15
 
   const [[mins, secs], setTime] = React.useState([minutes, seconds]);
   const [prompt, setPrompt] = React.useState("eye")
@@ -77,7 +77,7 @@ function App() {
       setDataUrl(canvas.toDataURL())
       console.log(dataUrl)
       var result = evaluate();
-      if (categories[result] === prompt) {
+      if (result === prompt) {
         reset()
         setPrompt(library[Math.floor(Math.random() * library.length)])
         setScore(score + 1)

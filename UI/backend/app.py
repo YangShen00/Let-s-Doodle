@@ -16,6 +16,39 @@ from models import *
 
 import os
 
+prompt_dict = {
+    0: 'The Eiffel Tower',
+    1: 'The Great Wall of China',
+    2: 'airplane',
+    3: 'angel',
+    4: 'animal migration',
+    5: 'basket',
+    6: 'bread',
+    7: 'candle',
+    8: 'cloud',
+    9: 'diving board',
+    10: 'dog',
+    11: 'zigzag',
+    12: 'tree',
+    13: 'wine glass',
+    14: 'firetruck',
+    15: 'eye',
+    16: 'flower',
+    17: 'guitar',
+    18: 'toilet',
+    19: 'ice cream',
+    20: 'table',
+    21: 'duck',
+    22: 'knee',
+    23: 'elephant',
+    24: 'tornado',
+    25: 'hexagon',
+    26: 'umbrella',
+    27: 'triangle',
+    28: 'hand',
+    29: 'violin'
+}
+
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 logging.basicConfig(level=logging.DEBUG)
@@ -37,15 +70,16 @@ def getEvaluation():
     # print(image_input)
 
     im = Image.open(BytesIO(base64.b64decode(image_input))).convert("RGBA")
-    im = im.resize((28, 28))
+    # im = im.resize((28, 28))
+    im = im.resize((300, 300))
     new_im = Image.new("RGBA", im.size, "WHITE")
     new_im.paste(im, mask=im)
     im_rgb = new_im.convert('RGB').convert('L')
-    # im_rgb.show()
+    im_rgb.show()
 
     im = np.array(im_rgb)
     size = min(im.shape[0], im.shape[1])
-    im = im[:size, :size]
+    im = im[38:262, :224]
     im = torch.from_numpy(im).float()
 
     transform = transforms.Compose([
@@ -73,11 +107,13 @@ def getEvaluation():
     print(f'preds probabilities: {preds}')
     _, prediction_result = torch.max(preds, 1)
 
-    print("prediction_result: ", prediction_result)
+    result = prompt_dict[prediction_result.item()]
+
+    print("prediction_result: ", result)
 
     # result = np.random.choice([True, False])
 
-    return jsonify({"evaluation": prediction_result.item()}), 200
+    return jsonify({"evaluation": result}), 200
 
 
 if __name__ == '__main__':
