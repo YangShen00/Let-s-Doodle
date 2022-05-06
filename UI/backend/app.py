@@ -74,7 +74,7 @@ def getEvaluation():
     new_im = Image.new("RGBA", im.size, "WHITE")
     new_im.paste(im, mask=im)
     im_rgb = new_im.convert('RGB').convert('L')
-    im_rgb.show()
+    # im_rgb.show()
 
     im = np.array(im_rgb)
     im = np.invert(im)

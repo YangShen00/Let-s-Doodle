@@ -65,7 +65,7 @@ function App() {
   const seconds = 15
 
   const [[mins, secs], setTime] = React.useState([minutes, seconds]);
-  const [prompt, setPrompt] = React.useState("eye")
+  const [prompt, setPrompt] = React.useState("flower")
   const [score, setScore] = React.useState(0)
   const [stop, setStop] = React.useState(false)
 
