@@ -41,16 +41,22 @@ def getEvaluation():
     new_im = Image.new("RGBA", im.size, "WHITE")
     new_im.paste(im, mask=im)
     im_rgb = new_im.convert('RGB').convert('L')
-    # im_rgb.show()
+    im_rgb.show()
 
     im = np.array(im_rgb)
     size = min(im.shape[0], im.shape[1])
     im = im[:size, :size]
     im = torch.from_numpy(im).float()
 
+    # transform = transforms.Compose([
+    #     transforms.Lambda(lambda x: x.expand((3, -1, -1))),
+    #     transforms.Resize((224, 224)),
+    #     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    # ])
+
     transform = transforms.Compose([
         transforms.Lambda(lambda x: x.expand((3, -1, -1))),
-        transforms.Resize((224, 224)),
+        transforms.Resize((28, 28)),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
@@ -60,13 +66,21 @@ def getEvaluation():
     # print("input_image: ", input_image)
     print('size', input_image.shape)
 
-    model = models.resnet18(pretrained=True)
-    num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, 30)
+    model = CNN(3, 32, 11, 3, 0.25, 0.5)
+    # model.load_state_dict(
+    #     torch.load(
+    #         '../../classifiers/model_weights/cnn/cnn05_May_2022_08_54_11.pth'))
     model.load_state_dict(
         torch.load(
-            '../../classifiers/model_weights/resnet/resnet05_May_2022_11_46_38.pth',
-            map_location=torch.device('cpu')))
+            '../../classifiers/model_weights/cnn/cnn29_Apr_2022_21_54_43.pth'))
+
+    # model = models.resnet18(pretrained=True)
+    # num_ftrs = model.fc.in_features
+    # model.fc = nn.Linear(num_ftrs, 30)
+    # model.load_state_dict(
+    #     torch.load(
+    #         '../../classifiers/model_weights/resnet/resnet05_May_2022_11_46_38.pth',
+    #         map_location=torch.device('cpu')))
 
     model.eval()
     preds = model(input_image)
