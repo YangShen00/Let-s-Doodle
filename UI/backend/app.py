@@ -70,14 +70,14 @@ def getEvaluation():
     # print(image_input)
 
     im = Image.open(BytesIO(base64.b64decode(image_input))).convert("RGBA")
-    # im = im.resize((28, 28))
-    im = im.resize((300, 300))
+    im = im.resize((224, 224))
     new_im = Image.new("RGBA", im.size, "WHITE")
     new_im.paste(im, mask=im)
     im_rgb = new_im.convert('RGB').convert('L')
     im_rgb.show()
 
     im = np.array(im_rgb)
+    im = np.invert(im)
     size = min(im.shape[0], im.shape[1])
     im = im[38:262, :224]
     im = torch.from_numpy(im).float()
@@ -88,11 +88,25 @@ def getEvaluation():
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
+    # transform = transforms.Compose([
+    #     transforms.Lambda(lambda x: x.expand((3, -1, -1))),
+    #     transforms.Resize((28, 28)),
+    #     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    # ])
+
     input_image = transform(im)
     input_image = input_image[None, :]
 
     # print("input_image: ", input_image)
     print('size', input_image.shape)
+
+    # model = CNN(3, 32, 30, 3, 0.25, 0.5)
+    # model.load_state_dict(
+    #     torch.load(
+    #         '../../classifiers/model_weights/cnn/cnn05_May_2022_08_54_11.pth'))
+    # model.load_state_dict(
+    #     torch.load(
+    #         '../../classifiers/model_weights/cnn/cnn29_Apr_2022_21_54_43.pth'))
 
     model = models.resnet18(pretrained=True)
     num_ftrs = model.fc.in_features
