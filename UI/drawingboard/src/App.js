@@ -48,7 +48,6 @@ function App() {
 
   const download = (image, { name = "img", extension = "jpg" } = {}) => {
     const a = document.createElement("a");
-    console.log(image)
     a.href = image;
     a.download = "output.png";
     a.click();
@@ -68,22 +67,29 @@ function App() {
   const [prompt, setPrompt] = React.useState("flower")
   const [score, setScore] = React.useState(0)
   const [stop, setStop] = React.useState(false)
+  const [prediction, setPrediction] = React.useState("I'm not sure what this is")
 
   const library = Object.values(categories)
 
+  const check = (result) => {
+    setPrediction(result);
+    console.log(result, prompt)
+    if (result === prompt) {
+      console.log("get here")
+      reset()
+      setPrompt(library[Math.floor(Math.random() * library.length)])
+      setScore(score + 1)
+      clearCanvas()
+    }
+  }
+
   const tick = () => {
-    if (secs % 10 == 0) {
+    if (secs % 2 == 0) {
       var canvas = document.getElementById('canvas');
       setDataUrl(canvas.toDataURL())
-      console.log(dataUrl)
-      var result = evaluate();
-      if (result === prompt) {
-        reset()
-        setPrompt(library[Math.floor(Math.random() * library.length)])
-        setScore(score + 1)
-        clearCanvas()
-      }
-
+      evaluate().then(result =>
+        check(result)
+      );
     }
 
     if (mins === 0 && secs === 0) {
@@ -92,7 +98,6 @@ function App() {
     } else if (secs === 0) {
       setTime([mins - 1, 59]);
     } else {
-      evaluate()
       setTime([mins, secs - 1]);
     }
   };
@@ -111,7 +116,8 @@ function App() {
     takeScreenShot(canvasRef.current)
     const response = await fetch('http://localhost:9000/evaluate', requestOptions);
     const data = await response.json();
-    console.log(data)
+    const result = data.evaluation
+    return result
   }
 
   const reset = () => setTime([parseInt(minutes), parseInt(seconds)]);
@@ -158,7 +164,6 @@ function App() {
 
   const draw = ({ nativeEvent }) => {
     if (!isDrawing) {
-      console.log('nooo')
       return;
     }
 
@@ -177,7 +182,7 @@ function App() {
   if (stop) {
     return (
       <div className="stopbackground">
-        <p className="stop"> stopped</p>
+        <p className="stop"> you have lost</p>
         <p className="stop"> your score is {score}</p>
         <p className="stop"> please refresh to restart</p>
       </div>
@@ -207,7 +212,8 @@ function App() {
             <a className='prompt'>{prompt}</a>
             <button className="button" onClick={clearCanvas}>Clear</button>
           </div>
-          <p>Current Score: {score}</p>
+          <p className="score">Current Score: {score}</p>
+          <p className="prediction">Current Prediction: {prediction}</p>
           {/* <button onClick={downloadScreenshot}>Download</button> */}
           {/* <button onClick={() => evaluate()}>Evaluate</button> */}
         </div>

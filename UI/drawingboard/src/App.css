@@ -100,11 +100,18 @@ button:hover {
   font-size: 5em;
   color: white;
   text-align: center;
-  /* min-height: 10vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 10em;
-  color: white; */
+}
+
+.score {
+  display: block;
+  float: left;
+  padding-left: 5em;
+  font-size: 1.2em;
+}
+
+.prediction {
+  display: block;
+  float: right;
+  padding-right: 4em;
+  font-size: 1.2em;
 }
