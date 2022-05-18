@@ -50,7 +50,7 @@ elif args.method == 'cnn':
                                     transforms.Resize((28, 28)),
                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
-elif args.method == 'resnet':
+elif args.method == 'resnet' or args.method == 'resnet+mlp':
     transform = transforms.Compose([transforms.Lambda(lambda x: x.expand((3, -1, -1))),
                                     transforms.Resize((224, 224)),
                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -146,6 +146,7 @@ for run in range(args.runs):
                 labels = labels.to(device=device, dtype=torch.long)
 
                 with torch.set_grad_enabled(phase == 'train'):
+#                     breakpoint()
                     preds = model(imgs)
 
                     loss = criterion(preds, labels)
