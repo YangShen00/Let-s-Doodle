@@ -16,7 +16,7 @@ def parse_method(args, device, dataset):
                     out_channels=n_classes,
                     num_layers=args.num_layers)
     elif args.method == 'resnet':
-        model = models.resnet18(pretrained=True)
+        model = models.resnet18(pretrained=False)
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, n_classes)
     elif args.method == 'cnn':
