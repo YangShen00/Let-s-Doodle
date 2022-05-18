@@ -50,7 +50,7 @@ elif args.method == 'cnn':
                                     transforms.Resize((28, 28)),
                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
-elif args.method == 'resnet':
+elif args.method == 'resnet' or args.method == 'resnet+mlp':
     transform = transforms.Compose([transforms.Lambda(lambda x: x.expand((3, -1, -1))),
                                     transforms.Resize((224, 224)),
                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -69,6 +69,7 @@ train_loader = None, None
 ### Load method ###
 
 model = parse_method(args, device, dataset)
+model = model.to(device)
 
 # using CrossEntropyLoss as the eval function
 criterion = nn.CrossEntropyLoss()
@@ -92,11 +93,11 @@ for run in range(args.runs):
                      "test": len(split_idx['test'])}
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
-                              shuffle=True, num_workers=args.num_workers, pin_memory=True, drop_last=True)
+                              shuffle=True, num_workers=args.num_workers, pin_memory=False, drop_last=True)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True,
-                            num_workers=args.num_workers, pin_memory=True, drop_last=True)
+                            num_workers=args.num_workers, pin_memory=False, drop_last=True)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True,
-                             num_workers=args.num_workers, pin_memory=True, drop_last=True)
+                             num_workers=args.num_workers, pin_memory=False, drop_last=True)
 
     if args.adam:
         optimizer = torch.optim.Adam(
@@ -145,6 +146,7 @@ for run in range(args.runs):
                 labels = labels.to(device=device, dtype=torch.long)
 
                 with torch.set_grad_enabled(phase == 'train'):
+#                     breakpoint()
                     preds = model(imgs)
 
                     loss = criterion(preds, labels)
